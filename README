@@ -1,0 +1,13 @@
+Dependencies:
+    - libbcm2835
+    - sqlite3
+Compile:
+    gcc dht.c -Wall -Wextra -Wconversion -lbcm2835 -lsqlite3 -lrt -o dht
+    
+Connection:
+    orange	+5V	P4
+    black	GND	P6
+    white	S	P7 (GPIO4)
+
+Happy birthday! ;)
+-- Vadim
