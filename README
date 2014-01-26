@@ -3,8 +3,9 @@ Dependencies:
     - sqlite3
     - libmicrohttpd-dev
 Compile:
-    gcc dht.c -Wall -Wextra -Wconversion -lbcm2835 -lsqlite3 -lrt -o dht
-    
+   ./get.sh
+   ./build.sh
+ 
 Connection:
     orange	+5V	P4
     black	GND	P6
