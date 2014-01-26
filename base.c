@@ -142,6 +142,14 @@ int base_query_json (sqlite3* db, const char* q, char** result) {
     return 1;
   }
 
+  if (strlen(*result) < 2) {
+    char* res = malloc(sizeof(char) * 3);
+    strcpy(res, "[]");
+    free(*result);
+    *result = res;
+    return 0;
+  }
+
   (*result)[strlen(*result)-2] = ']';
   return 0;
 }
