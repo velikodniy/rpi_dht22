@@ -1,6 +1,6 @@
 Dependencies:
     - libbcm2835
-    - sqlite3
+    - libsqlite3-dev
     - libmicrohttpd-dev
 Compile:
    ./get.sh
