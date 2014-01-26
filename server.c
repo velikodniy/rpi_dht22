@@ -18,13 +18,13 @@ int http400(struct MHD_Connection *connection) {
   return ret;
 }
 
-static int request_handler (void * dbv,
-			    struct MHD_Connection *connection,
-			    const char *url,
-			    const char *method,
-			    const char *version,
-			    const char *upload_data, size_t *upload_data_size,
-			    void **con_cls) {
+int request_handler (void * dbv,
+		     struct MHD_Connection *connection,
+		     const char *url,
+		     const char *method,
+		     const char *version,
+		     const char *upload_data, size_t *upload_data_size,
+		     void **con_cls) {
   static int con_cls0;
   struct MHD_Response* response;
   int ret;
