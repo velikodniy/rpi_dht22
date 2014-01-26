@@ -1,0 +1,5 @@
+- Move code to src/ subdirectory.
+- Write Makefile.
+- Check on incorrect input parameters
+- Check for memory leaks with valgrind.
+- Rewrite this ugly code!!!
