@@ -1,6 +1,7 @@
 Dependencies:
     - libbcm2835
     - sqlite3
+    - libmicrohttpd-dev
 Compile:
     gcc dht.c -Wall -Wextra -Wconversion -lbcm2835 -lsqlite3 -lrt -o dht
     
