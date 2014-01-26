@@ -44,9 +44,9 @@ int base_load_last(sqlite3* db, unsigned int N, char** result) {
   return ret;
 }
 
-int base_load_between(sqlite3* db, char* date1, char* date2, char** result) {
+int base_load_between(sqlite3* db, const char* from, const char* to, char** result) {
   int ret;
-  char* q = sqlite3_mprintf(QLOADB, date1, date2);
+  char* q = sqlite3_mprintf(QLOADB, from, to);
   ret = base_query_json(db, q, result);
   sqlite3_free(q);
   return ret;
@@ -115,8 +115,7 @@ int result_iterate (void* json_res_v, int col_count, char** cols, char** col_nam
 
   // Add to result
   json_bak = *json_res;
-  *json_res = malloc(sizeof(char) * (
-				     json_bak == NULL ? 0 : strlen(json_bak) +
+  *json_res = malloc(sizeof(char) * (json_bak == NULL ? 0 : strlen(json_bak) +
 				     strlen(json) +
 				     1));
   strcpy(*json_res, json_bak);
