@@ -1,6 +1,8 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
+#include <microhttpd.h>
+
 typedef struct MHD_Daemon* server_t;
 
 int http400(struct MHD_Connection *connection);
