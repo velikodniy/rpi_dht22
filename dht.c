@@ -86,7 +86,7 @@ int dht_read(uint8_t pin, double* temp, double* hum) {
     if (data[2] & 0x80)
       *temp *= -1;
   } else
-    return -1;
+    return 1;
 
 #ifdef DEBUG
   printf("T=%lf, H=%lf", *temp, *hum);
