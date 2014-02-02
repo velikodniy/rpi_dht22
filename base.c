@@ -9,7 +9,9 @@
   "id INTEGER PRIMARY KEY,"				\
   "temp REAL, hum REAL,"				\
   "time DATETIME DEFAULT CURRENT_TIMESTAMP"		\
-  ");"
+  ");"                                                  \
+  "CREATE INDEX IF NOT EXISTS ON data (time);"
+
 #define QSAVE "INSERT INTO data (temp, hum) VALUES (%f, %f);"
 #define QLOADN "SELECT id, time, temp, hum FROM data ORDER BY time DESC LIMIT %d;"
 #define QLOADB "SELECT id, time, temp, hum FROM data WHERE time BETWEEN '%q' AND '%q';"
