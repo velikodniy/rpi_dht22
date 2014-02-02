@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <ctype.h>
+#include <signal.h>
 
 #include <sqlite3.h>
 
@@ -15,12 +16,34 @@
 #define DBPATH "data.db"
 #define TIMEINT (5*60)
 
+// Server parameters
+sqlite3 *db_server;
+server_t server;
+
+// Sensor reader parameters
+sqlite3* db_sensor;
+unsigned int timeint = 0;
+
+void on_timer_sig(int arg) {
+  double temp, hum;
+#ifdef DEBUG
+  printf("Got SIGALRM\n");
+#endif
+  dht_get(&temp, &hum);
+  base_save(db_sensor, temp, hum);
+  alarm(timeint);
+}
+
+void on_exit_sig(int arg) {
+#ifdef DEBUG
+  printf("Got SIGTERM\n");
+#endif
+  server_stop(server);
+  base_close(db_server);
+}
+
 int main(int argc, char **argv) {
   int port = -1;
-  int timeint = -1;
-
-  sqlite3 *db_server, *db_sensor;
-  server_t server;
 
   int ret;
   int i;
@@ -47,7 +70,8 @@ int main(int argc, char **argv) {
       break;
     case 't':
       timeint_s = optarg;
-      timeint = atoi(timeint_s);
+      ret = atoi(timeint_s);
+      timeint = ret < 0 ? 0 : (unsigned int)ret;
       break;
     case '?':
       if (optopt == 'p' ||
@@ -93,10 +117,26 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  getchar();
+  // Register signal handlers
+  signal(SIGTERM, &on_exit_sig);
+  signal(SIGALRM, &on_timer_sig);
 
-  server_stop(server);
-  base_close(db_server);
+  // Start sensor reader
+  ret = dht_init();
+  if (ret != 0) {
+    fprintf(stderr, "Cannot init sensor");
+    return 1;
+  }
+  ret = base_init(&db_sensor, dbpath);
+  if (ret != 0) {
+    fprintf(stderr, "Cannot open base '%s'", dbpath);
+    return 1;
+  }
+  alarm(timeint);
+
+  // Main loop
+  while(1)
+    pause();
 
   return 0;
 }
