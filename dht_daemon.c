@@ -36,10 +36,11 @@ void on_timer_sig(int arg) {
 
 void on_exit_sig(int arg) {
 #ifdef DEBUG
-  printf("Got SIGTERM\n");
+  printf("Exit\n");
 #endif
   server_stop(server);
   base_close(db_server);
+  exit(1);
 }
 
 int main(int argc, char **argv) {
@@ -119,6 +120,7 @@ int main(int argc, char **argv) {
 
   // Register signal handlers
   signal(SIGTERM, &on_exit_sig);
+  signal(SIGINT,  &on_exit_sig);
   signal(SIGALRM, &on_timer_sig);
 
   // Start sensor reader
