@@ -9,9 +9,9 @@
   "id INTEGER PRIMARY KEY,"				\
   "temp REAL, hum REAL,"				\
   "time DATETIME DEFAULT CURRENT_TIMESTAMP"		\
-  ");"                                                  \
-  "CREATE INDEX IF NOT EXISTS ON data (time);"          \
-  "CREATE INDEX IF NOT EXISTS ON data (id);"
+  ");"
+#define QINDEXTIME "CREATE INDEX IF NOT EXISTS idx_time ON data (time);"
+#define QINDEXID   "CREATE INDEX IF NOT EXISTS idx_id ON data (id);"
 
 #define QSAVE "INSERT INTO data (temp, hum) VALUES (%f, %f);"
 #define QLOADN "SELECT id, time, temp, hum FROM data ORDER BY time DESC LIMIT %d;"
@@ -27,6 +27,8 @@ int base_init(sqlite3** db, char* dbname) {
   }
 
   base_query(*db, QCREATE);
+  base_query(*db, QINDEXTIME);
+  base_query(*db, QINDEXID);
 
   return 0;
 }
