@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
   // Start HTTP-server
   ret = base_init(&db_server, dbpath);
   if (ret != 0) {
-    fprintf(stderr, "Cannot open base '%s'", dbpath);
+    fprintf(stderr, "Cannot open base '%s'\n", dbpath);
     return 1;
   }
     
@@ -124,12 +124,12 @@ int main(int argc, char **argv) {
   // Start sensor reader
   ret = dht_init();
   if (ret != 0) {
-    fprintf(stderr, "Cannot init sensor");
+    fprintf(stderr, "Cannot init sensor\n");
     return 1;
   }
   ret = base_init(&db_sensor, dbpath);
   if (ret != 0) {
-    fprintf(stderr, "Cannot open base '%s'", dbpath);
+    fprintf(stderr, "Cannot open base '%s'\n", dbpath);
     return 1;
   }
   alarm(timeint);
