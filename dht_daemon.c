@@ -13,10 +13,11 @@
 
 #define PORT 8080
 #define DBPATH "data.db"
-
+#define TIMEINT (5*60)
 
 int main(int argc, char **argv) {
   int port = -1;
+  int timeint = -1;
 
   sqlite3 *db_server, *db_sensor;
   server_t server;
@@ -26,15 +27,16 @@ int main(int argc, char **argv) {
 
   char* port_s = NULL;
   char* dbpath = NULL;
+  char* timeint_s = NULL;
 
   // Parse options
   int c;  
   opterr = 0;
-  while ((c = getopt (argc, argv, "hp:d:")) != -1)
+  while ((c = getopt (argc, argv, "hp:d:t:")) != -1)
     switch (c) {
     case 'h':
-      printf ("USAGE: %s -p port -d dbpath\n", argv[0]);
-      printf ("Defaults: port=%d, dbpath='%s'\n", PORT, DBPATH); 
+      printf ("USAGE: %s -p port -d dbpath -t interval\n", argv[0]);
+      printf ("Defaults: port=%d, dbpath='%s', interval=%d\n", PORT, DBPATH, TIMEINT); 
       return 0;
     case 'p':
       port_s = optarg;
@@ -43,8 +45,14 @@ int main(int argc, char **argv) {
     case 'd':
       dbpath = optarg;
       break;
+    case 't':
+      timeint_s = optarg;
+      timeint = atoi(timeint_s);
+      break;
     case '?':
-      if (optopt == 'p' || optopt == 'd')
+      if (optopt == 'p' ||
+	  optopt == 'd' ||
+	  optopt == 't')
 	fprintf (stderr, "Option -%c requires an argument.\n", optopt);
       else if (isprint (optopt))
 	fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -58,11 +66,12 @@ int main(int argc, char **argv) {
     }
 
   // Set defaults when needed
-  port = port == -1 ? PORT : port;
+  port = port < 0 ? PORT : port;
   dbpath = dbpath == NULL ? DBPATH : dbpath;
+  timeint = timeint < 1 ? TIMEINT : timeint;
   
 #ifdef DEBUG
-  printf ("port = %d, dbpath = %s\n", port, dbpath);
+  printf ("port = %d, dbpath = %s, timeint=%d\n", port, dbpath, timeint);
 #endif
 
   if (optind < argc) {
