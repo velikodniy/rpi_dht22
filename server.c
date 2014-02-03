@@ -8,12 +8,29 @@
 #include "base.h"
 #include "server.h"
 
+#define CORS_HEADER "Access-Control-Allow-Origin"
+#define CORS_ORIGIN "*"
+
 int http400(struct MHD_Connection *connection) {
   const char* msg = "400 Bad request";
   struct MHD_Response* response = MHD_create_response_from_buffer (strlen (msg),
 								   (void *) msg,
 								   MHD_RESPMEM_MUST_COPY);
   int ret = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, response);
+  MHD_destroy_response (response);
+  return ret;
+}
+
+int options200(struct MHD_Connection *connection) {
+  const char* msg = "200 OK";
+  struct MHD_Response* response = MHD_create_response_from_buffer (strlen (msg), (void *) msg, MHD_RESPMEM_MUST_COPY);
+
+  MHD_add_response_header (response, CORS_HEADER, CORS_ORIGIN);
+  MHD_add_response_header (response, "Access-Control-Allow-Methods", "GET, OPTIONS");
+  MHD_add_response_header (response, "Access-Control-Allow-Headers", "X-Requested-With");
+  MHD_add_response_header (response, "Access-Control-Max-Age", "1800");
+
+  int ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   MHD_destroy_response (response);
   return ret;
 }
@@ -32,8 +49,12 @@ int request_handler (void * dbv,
   sqlite3* db = (sqlite3*) dbv;
   
   // Unexpected method
-  if (0 != strcmp(method, "GET"))
-    return http400(connection);
+  if (0 != strcmp(method, "GET")){
+    if(0 == strcmp(method, "OPTIONS"))
+        return options200(connection);
+    else
+        return http400(connection);
+  }
   
   // Do never respond on first call
   if (&con_cls0 != *con_cls) {
@@ -72,6 +93,7 @@ int request_handler (void * dbv,
   response = MHD_create_response_from_buffer (strlen (result),
 					      (void *) result,
 					      MHD_RESPMEM_MUST_COPY);
+  MHD_add_response_header (response, CORS_HEADER, CORS_ORIGIN);
   free(result);
   ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   MHD_destroy_response (response);

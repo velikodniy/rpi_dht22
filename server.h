@@ -5,6 +5,7 @@
 
 typedef struct MHD_Daemon* server_t;
 
+int options200(struct MHD_Connection *connection);
 int http400(struct MHD_Connection *connection);
 int request_handler (void * dbv,
 		     struct MHD_Connection *connection,
