@@ -5,7 +5,7 @@ Dependencies:
 
 Compile:
    make getlibs
-   ./build.sh
+   make
  
 Connection:
     orange	+5V	P4
