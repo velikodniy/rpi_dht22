@@ -8,6 +8,9 @@
 #include "base.h"
 #include "server.h"
 
+#define CORS_HEADER "Access-Control-Allow-Origin"
+#define CORS_ORIGIN "*"
+
 int http400(struct MHD_Connection *connection) {
   const char* msg = "400 Bad request";
   struct MHD_Response* response = MHD_create_response_from_buffer (strlen (msg),
@@ -72,6 +75,7 @@ int request_handler (void * dbv,
   response = MHD_create_response_from_buffer (strlen (result),
 					      (void *) result,
 					      MHD_RESPMEM_MUST_COPY);
+  MHD_add_response_header (response, CORS_HEADER, CORS_ORIGIN);
   free(result);
   ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   MHD_destroy_response (response);
