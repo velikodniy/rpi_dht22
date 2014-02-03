@@ -1,9 +1,10 @@
 Dependencies:
-    - libbcm2835 (you can get it by running get.sh)
+    - libbcm2835 (you can get it by running `make getlibs`)
     - libsqlite3-dev
     - libmicrohttpd-dev
+
 Compile:
-   ./get.sh
+   make getlibs
    ./build.sh
  
 Connection:
