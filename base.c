@@ -5,6 +5,8 @@
 
 #include "base.h"
 
+#define BUFFER_SIZE 10*1024*1024
+
 #define QCREATE "CREATE TABLE IF NOT EXISTS data("	\
   "id INTEGER PRIMARY KEY,"				\
   "temp REAL, hum REAL,"				\
@@ -17,7 +19,13 @@
 #define QLOADN "SELECT id, time, temp, hum FROM data ORDER BY time DESC LIMIT %d;"
 #define QLOADB "SELECT id, time, temp, hum FROM data WHERE time BETWEEN '%q' AND '%q';"
 
+char* result_buffer;
+
 int base_init (sqlite3** db, char* dbname) {
+  result_buffer = malloc(BUFFER_SIZE * sizeof(char));
+  if (result_buffer == NULL)
+    return 1;
+
   if (sqlite3_open_v2 (dbname, db,
 		       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
 		       NULL)) {
@@ -74,70 +82,64 @@ int base_query (sqlite3* db, const char* q) {
   return 0;
 }
 
-// FIXME: Use large buffer instead copying
-int result_iterate (void* json_res_v, int col_count, char** cols, char** col_names) {
-  char* json;
-  char* json_it;
-  char* json_bak;
-  char** json_res = (char**)json_res_v;
-  int count, i;
+long buffer_est_size (char* p) {
+  char* end = result_buffer + BUFFER_SIZE;
+  return end - p;
+}
 
-  // Count chars
-  unsigned long length = 0;
-  for (i = 0; i < col_count; i++) {
-    if (cols[i] == NULL)
-      continue;
-    length +=
-      strlen(col_names[i]) +
-      strlen(": '") +
-      strlen(cols[i]) +
-      strlen("'");
+int check_buffer (char* p, size_t n) {
+  char* end = result_buffer + BUFFER_SIZE;
+  return (p + n + 1) < end;
+}
 
-    if (i != col_count-1)
-      length += strlen(", ");
-  }
+int add_to_buffer (char** pp, char* str) {
+  size_t len = strlen(str);
+  if (!check_buffer (*pp, len))
+    return 1;
+  strcpy (*pp, str);
+  (*pp) += len;
+  return 0;
+}
 
-  length += strlen("{}, ");
-  length += 1; // For '\0'
-
-  // Malloc
-  json = malloc(sizeof(char) * length);
-  json_it = json;
+// TODO Check it!
+int result_iterate (void* json_v, int col_count, char** cols, char** col_names) {
+  int i;
+  long size, count;
+  char** json = (char**)json_v;
 
   // Format string
-  strcpy(json_it, "{");
-  json_it++;
+  if (add_to_buffer (json, "{") != 0)
+    return 1;
+  
   for (i = 0; i < col_count; i++) {
     if (cols[i] == NULL)
       continue;
-    count = sprintf(json_it, "%s: '%s'", col_names[i], cols[i]);
-    json_it += count;
     
-    if (i != col_count - 1) {
-      strcat(json_it, ", ");
-      json_it += strlen(", ");
-    }
+    size = buffer_est_size (*json) - 1;
+    count = snprintf (*json, (size_t)size, "%s: '%s'", col_names[i], cols[i]);
+    if (count >= size)
+      return 1;
+    (*json) += count;
+    
+    if (i != col_count - 1)
+      if (add_to_buffer (json, ", ") != 0)
+	return 1;
   }
-  strcat(json_it, "}, ");
 
-  // Add to result
-  json_bak = *json_res;
-  *json_res = malloc(sizeof(char) * (json_bak == NULL ? 0 : strlen(json_bak) +
-				     strlen(json) +
-				     1));
-  strcpy(*json_res, json_bak);
-  strcat(*json_res, json);
-  free(json_bak);
-  free(json);
+  if (add_to_buffer (json, "}, ") != 0)
+    return 1;
 
   return 0;
 }
 
 int base_query_json (sqlite3* db, const char* q, char** result) {
   int rc;
-  char *zErrMsg = NULL;
-  *result = malloc (2 * sizeof(char));
+  char* zErrMsg = NULL;
+
+  *result = result_buffer;
+
   strcpy (*result, "[");
+  (*result)++;
 
   rc = sqlite3_exec (db, q, result_iterate, result, &zErrMsg);
   if (rc != SQLITE_OK) {
@@ -145,23 +147,18 @@ int base_query_json (sqlite3* db, const char* q, char** result) {
     fprintf (stderr, "SQL error (%d): %s\n", rc, zErrMsg);
 #endif
     sqlite3_free (zErrMsg);
-    free (*result);
     return 1;
   }
 
-  if (strlen(*result) < 2) {
-    char* res = malloc (sizeof(char) * 3);
-    strcpy (res, "[]");
-    free (*result);
-    *result = res;
-    return 0;
-  }
-
   (*result)[strlen(*result)-2] = ']';
+ 
+  *result = result_buffer;
+
   return 0;
 }
 
 int base_close (sqlite3* db) {
   // Close SQLite connection
+  free(result_buffer);
   return sqlite3_close_v2 (db);
 }

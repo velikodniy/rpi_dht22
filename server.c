@@ -98,7 +98,6 @@ int request_handler (void * dbv,
 					      (void *) result,
 					      MHD_RESPMEM_MUST_COPY);
   MHD_add_response_header (response, CORS_HEADER, CORS_ORIGIN);
-  free(result);
   ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   MHD_destroy_response (response);
   return ret;
