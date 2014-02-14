@@ -1,21 +1,24 @@
+NAME=dht_daemon
+
+SOURCES=base.c server.c dht.c dht_daemon.c
+OBJECTS=$(patsubst %.c, %.o, $(SOURCES))
+
 LIBVER=1.36
 LIBDIR=./bcm2835
 
-CC=gcc
-LINKER=gcc
-CFLAGS=-Wall -Wno-unused-parameter -Wextra -Wconversion
+CFLAGS += -Wall -Wno-unused-parameter -Wextra -Wconversion
+CFLAGS += -I$(LIBDIR)
+LDFLAGS += -L$(LIBDIR)
+LDLIBS += -lsqlite3 -lmicrohttpd -lbcm2835
 
-LIBS=-lsqlite3 -lmicrohttpd -lbcm2835
-OBJS=base.o server.o dht.o dht_daemon.o
+.PHONY: all getlibs clean
 
-all: dht_daemon
-.PHONY: all
+all: $(NAME)
 
-dht_daemon: $(OBJS)
-	$(LINKER) -o $@ $^ $(CFLAGS) -L$(LIBDIR) $(LIBS)
+$(NAME): $(OBJECTS)
 
-%.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS) -I$(LIBDIR)
+clean:
+	$(RM) *.o dht_daemon
 
 getlibs:
 	mkdir -p "$(LIBDIR)"
@@ -29,8 +32,3 @@ getlibs:
 	cp "bcm2835-$(LIBVER)/src/libbcm2835.a" ./ &&\
 	rm -r "bcm2835-$(LIBVER)" &&\
 	rm "bcm2835-$(LIBVER).tar.gz"
-.PHONY: getlibs
-
-clean:
-	rm *.o dht_daemon
-.PHONY: clean
