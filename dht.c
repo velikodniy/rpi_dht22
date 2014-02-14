@@ -2,6 +2,10 @@
 #include <time.h>
 #include <unistd.h>
 
+#ifdef DEBUG
+#include <stdio.h>
+#endif
+
 #include <bcm2835.h>
 
 #include "dht.h"
@@ -21,16 +25,16 @@ int dht_init() {
 
 void dht_get(double* temp, double* hum) {
 #ifdef DEBUG
-  printf("\n");
+  fprintf (stderr, "\n");
 #endif
   // While checksum is not correct
   while(dht_read(PIN, temp, hum) != 0)
 #ifdef DEBUG
-    printf(".");
+    fprintf (stderr, ".");
 #endif
     ;
 #ifdef DEBUG
-    printf("\n");
+    fprintf (stderr, "\n");
 #endif
 }
 
@@ -75,7 +79,8 @@ int dht_read(uint8_t pin, double* temp, double* hum) {
   }
   
 #ifdef DEBUG
-  printf("Data (%d): 0x%x 0x%x 0x%x 0x%x 0x%x\n", j, data[0], data[1], data[2], data[3], data[4]);
+  fprintf (stderr, "Data (%d): 0x%x 0x%x 0x%x 0x%x 0x%x\n",
+	   j, data[0], data[1], data[2], data[3], data[4]);
 #endif
  
   // Validate checksum
@@ -89,7 +94,7 @@ int dht_read(uint8_t pin, double* temp, double* hum) {
     return 1;
 
 #ifdef DEBUG
-  printf("T=%lf, H=%lf", *temp, *hum);
+  fprintf (stderr, "T=%lf, H=%lf", *temp, *hum);
 #endif
   
   return 0;

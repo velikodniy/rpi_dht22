@@ -27,7 +27,7 @@ unsigned int timeint = 0;
 void on_timer_sig(int arg) {
   double temp, hum;
 #ifdef DEBUG
-  printf("Got SIGALRM\n");
+  fprintf(stderr, "Got SIGALRM\n");
 #endif
   dht_get(&temp, &hum);
   base_save(db_sensor, temp, hum);
@@ -36,7 +36,7 @@ void on_timer_sig(int arg) {
 
 void on_exit_sig(int arg) {
 #ifdef DEBUG
-  printf("Exit\n");
+  fprintf(stderr, "Exit\n");
 #endif
   server_stop(server);
   base_close(db_server);
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
   timeint = timeint < 1 ? TIMEINT : timeint;
   
 #ifdef DEBUG
-  printf ("port = %d, dbpath = %s, timeint=%d\n", port, dbpath, timeint);
+  fprintf (stderr, "port = %d,\ndbpath = %s,\ntimeint = %d\n", port, dbpath, timeint);
 #endif
 
   if (optind < argc) {

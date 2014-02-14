@@ -20,7 +20,7 @@
 int base_init(sqlite3** db, char* dbname) {
   if (sqlite3_open(dbname, db)){
 #ifdef DEBUG
-    fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(*db));
+    fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg(*db));
 #endif
     sqlite3_close(*db);
     return 1;
@@ -64,7 +64,7 @@ int base_query (sqlite3* db, const char* q) {
   rc = sqlite3_exec(db, q, NULL, 0, &zErrMsg);
   if (rc != SQLITE_OK) {
 #ifdef DEBUG
-    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+    fprintf (stderr, "SQL error: %s\n", zErrMsg);
 #endif
     sqlite3_free(zErrMsg);
     return 1;
@@ -140,7 +140,7 @@ int base_query_json (sqlite3* db, const char* q, char** result) {
   rc = sqlite3_exec(db, q, result_iterate, result, &zErrMsg);
   if (rc != SQLITE_OK) {
 #ifdef DEBUG
-    fprintf(stderr, "SQL error (%d): %s\n", rc, zErrMsg);
+    fprintf (stderr, "SQL error (%d): %s\n", rc, zErrMsg);
 #endif
     sqlite3_free(zErrMsg);
     free(*result);
