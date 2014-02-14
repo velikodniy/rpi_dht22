@@ -121,6 +121,9 @@ int main(int argc, char **argv) {
   }
 
   // Start HTTP-server
+#ifdef DEBUG
+  fprintf (stderr, "Starting HTTP-server...");
+#endif
   ret = base_init(&db_server, dbpath);
   if (ret != 0) {
     fprintf(stderr, "Cannot open base '%s'\n", dbpath);
@@ -132,6 +135,9 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Cannot start server on port %d\n", port);
     return 1;
   }
+#ifdef DEBUG
+  fprintf (stderr, "OK\n");
+#endif
 
   // Register signal handlers
   signal(SIGTERM, &on_exit_sig);
@@ -139,6 +145,9 @@ int main(int argc, char **argv) {
 
   // Start sensor reader
   if (!http_only) {
+#ifdef DEBUG
+    fprintf (stderr, "Starting sensor reader...");
+#endif
     ret = dht_init();
     if (ret != 0) {
       fprintf(stderr, "Cannot init sensor\n");
@@ -151,6 +160,9 @@ int main(int argc, char **argv) {
     }
     signal(SIGALRM, &on_timer_sig);
     alarm(timeint);
+#ifdef DEBUG
+    fprintf (stderr, "OK\n");
+#endif
   }
 
   // Main loop
