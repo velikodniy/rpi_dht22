@@ -43,6 +43,17 @@ void on_exit_sig(int arg) {
   exit(1);
 }
 
+void print_usage(char *name) {
+  printf ("USAGE:\n\t%s [-p port] [-d dbpath] [-t interval] [-s]\n", name);
+  printf ("Options:\n");
+  printf ("\t-s\tRun only HTTP server\n");
+  printf ("Defaults:\n");
+  printf ("\tport=%d\n", PORT);
+  printf ("\tdbpath='%s'\n", DBPATH);
+  printf ("\tinterval=%d\n", TIMEINT);
+
+}
+
 int main(int argc, char **argv) {
   int port = -1;
 
@@ -53,14 +64,15 @@ int main(int argc, char **argv) {
   char* dbpath = NULL;
   char* timeint_s = NULL;
 
+  int http_only = 0;
+
   // Parse options
   int c;  
   opterr = 0;
-  while ((c = getopt (argc, argv, "hp:d:t:")) != -1)
+  while ((c = getopt (argc, argv, "hp:d:t:s")) != -1)
     switch (c) {
     case 'h':
-      printf ("USAGE: %s -p port -d dbpath -t interval\n", argv[0]);
-      printf ("Defaults: port=%d, dbpath='%s', interval=%d\n", PORT, DBPATH, TIMEINT); 
+      print_usage(argv[0]);
       return 0;
     case 'p':
       port_s = optarg;
@@ -73,6 +85,9 @@ int main(int argc, char **argv) {
       timeint_s = optarg;
       ret = atoi(timeint_s);
       timeint = ret < 0 ? 0 : (unsigned int)ret;
+      break;
+    case 's':
+      http_only = 1;
       break;
     case '?':
       if (optopt == 'p' ||
@@ -121,20 +136,22 @@ int main(int argc, char **argv) {
   // Register signal handlers
   signal(SIGTERM, &on_exit_sig);
   signal(SIGINT,  &on_exit_sig);
-  signal(SIGALRM, &on_timer_sig);
 
   // Start sensor reader
-  ret = dht_init();
-  if (ret != 0) {
-    fprintf(stderr, "Cannot init sensor\n");
-    return 1;
+  if (!http_only) {
+    ret = dht_init();
+    if (ret != 0) {
+      fprintf(stderr, "Cannot init sensor\n");
+      return 1;
+    }
+    ret = base_init(&db_sensor, dbpath);
+    if (ret != 0) {
+      fprintf(stderr, "Cannot open base '%s'\n", dbpath);
+      return 1;
+    }
+    signal(SIGALRM, &on_timer_sig);
+    alarm(timeint);
   }
-  ret = base_init(&db_sensor, dbpath);
-  if (ret != 0) {
-    fprintf(stderr, "Cannot open base '%s'\n", dbpath);
-    return 1;
-  }
-  alarm(timeint);
 
   // Main loop
   while(1)
