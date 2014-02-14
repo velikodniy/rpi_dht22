@@ -34,6 +34,9 @@ void on_timer_sig (int arg) {
   fprintf (stderr, "Got SIGALRM\n");
 #endif
   dht_get (&temp, &hum);
+#ifdef DEBUG
+  fprintf (stderr, "T=%f, H=%f", temp, hum);
+#endif
   base_save (db_sensor, temp, hum);
   alarm (timeint);
 }
