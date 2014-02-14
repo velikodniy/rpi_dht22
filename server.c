@@ -47,6 +47,10 @@ int request_handler (void * dbv,
   int ret;
   char* result;
   sqlite3* db = (sqlite3*) dbv;
+
+#ifdef DEBUG
+  fprintf (stderr, "%s %s %s\n", method, url, version);
+#endif
   
   // Unexpected method
   if (0 != strcmp(method, "GET")){
