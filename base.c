@@ -26,13 +26,11 @@ int base_init (sqlite3** db, char* dbname) {
   if (result_buffer == NULL)
     return 1;
 
-  if (sqlite3_open_v2 (dbname, db,
-		       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-		       NULL)) {
+  if (sqlite3_open (dbname, db)) {
 #ifdef DEBUG
     fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg(*db));
 #endif
-    sqlite3_close_v2 (*db);
+    sqlite3_close(*db);
     return 1;
   }
 
@@ -157,8 +155,9 @@ int base_query_json (sqlite3* db, const char* q, char** result) {
   return 0;
 }
 
-int base_close (sqlite3* db) {
-  // Close SQLite connection
+int base_close(sqlite3* db) {
   free(result_buffer);
-  return sqlite3_close_v2 (db);
+  // Close SQLite connection
+  sqlite3_close(db);
+  return 0;
 }
