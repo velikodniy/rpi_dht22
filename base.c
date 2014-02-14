@@ -28,34 +28,34 @@ int base_init (sqlite3** db, char* dbname) {
     return 1;
   }
 
-  base_query(*db, QCREATE);
-  base_query(*db, QINDEXTIME);
-  base_query(*db, QINDEXID);
+  base_query (*db, QCREATE);
+  base_query (*db, QINDEXTIME);
+  base_query (*db, QINDEXID);
 
   return 0;
 }
 
-int base_save(sqlite3* db, double T, double H) {
+int base_save (sqlite3* db, double T, double H) {
   int ret;
-  char* q = sqlite3_mprintf(QSAVE, T, H);
-  ret = base_query(db, q);
-  sqlite3_free(q);
+  char* q = sqlite3_mprintf (QSAVE, T, H);
+  ret = base_query (db, q);
+  sqlite3_free (q);
   return ret;
 }
 
-int base_load_last(sqlite3* db, unsigned int N, char** result) {
+int base_load_last (sqlite3* db, unsigned int N, char** result) {
   int ret;
-  char* q = sqlite3_mprintf(QLOADN, N);
-  ret = base_query_json(db, q, result);
-  sqlite3_free(q);
+  char* q = sqlite3_mprintf (QLOADN, N);
+  ret = base_query_json (db, q, result);
+  sqlite3_free (q);
   return ret;
 }
 
-int base_load_between(sqlite3* db, const char* from, const char* to, char** result) {
+int base_load_between (sqlite3* db, const char* from, const char* to, char** result) {
   int ret;
-  char* q = sqlite3_mprintf(QLOADB, from, to);
-  ret = base_query_json(db, q, result);
-  sqlite3_free(q);
+  char* q = sqlite3_mprintf (QLOADB, from, to);
+  ret = base_query_json (db, q, result);
+  sqlite3_free (q);
   return ret;
 }
 
@@ -63,12 +63,12 @@ int base_query (sqlite3* db, const char* q) {
   int rc;
   char *zErrMsg = NULL;
   
-  rc = sqlite3_exec(db, q, NULL, 0, &zErrMsg);
+  rc = sqlite3_exec (db, q, NULL, 0, &zErrMsg);
   if (rc != SQLITE_OK) {
 #ifdef DEBUG
     fprintf (stderr, "SQL error: %s\n", zErrMsg);
 #endif
-    sqlite3_free(zErrMsg);
+    sqlite3_free (zErrMsg);
     return 1;
   }
   return 0;
@@ -136,23 +136,23 @@ int result_iterate (void* json_res_v, int col_count, char** cols, char** col_nam
 int base_query_json (sqlite3* db, const char* q, char** result) {
   int rc;
   char *zErrMsg = NULL;
-  *result = malloc(2 * sizeof(char));
-  strcpy(*result, "[");
+  *result = malloc (2 * sizeof(char));
+  strcpy (*result, "[");
 
-  rc = sqlite3_exec(db, q, result_iterate, result, &zErrMsg);
+  rc = sqlite3_exec (db, q, result_iterate, result, &zErrMsg);
   if (rc != SQLITE_OK) {
 #ifdef DEBUG
     fprintf (stderr, "SQL error (%d): %s\n", rc, zErrMsg);
 #endif
-    sqlite3_free(zErrMsg);
-    free(*result);
+    sqlite3_free (zErrMsg);
+    free (*result);
     return 1;
   }
 
   if (strlen(*result) < 2) {
-    char* res = malloc(sizeof(char) * 3);
-    strcpy(res, "[]");
-    free(*result);
+    char* res = malloc (sizeof(char) * 3);
+    strcpy (res, "[]");
+    free (*result);
     *result = res;
     return 0;
   }
