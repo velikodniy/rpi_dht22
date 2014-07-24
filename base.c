@@ -41,7 +41,7 @@ int base_init (sqlite3** db, char* dbname) {
   return 0;
 }
 
-int base_save (sqlite3* db, double T, double H) {
+int base_save (sqlite3* db, float T, float H) {
   int ret;
   char* q = sqlite3_mprintf (QSAVE, T, H);
   ret = base_query (db, q);

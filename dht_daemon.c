@@ -29,13 +29,13 @@ unsigned int timeint = 0;
 char* dbpath = NULL;
 
 void on_timer_sig (int arg) {
-  double temp, hum;
+  float temp, hum;
 #ifdef DEBUG
   fprintf (stderr, "Got SIGALRM\n");
 #endif
   dht_get (&temp, &hum);
 #ifdef DEBUG
-  fprintf (stderr, "T=%f, H=%f", temp, hum);
+  fprintf (stderr, "T=%f, H=%f\n", temp, hum);
 #endif
   base_save (db_sensor, temp, hum);
   alarm (timeint);
@@ -87,11 +87,6 @@ void sensor_start(void) {
 #ifdef DEBUG
   fprintf (stderr, "Starting sensor reader...");
 #endif
-  ret = dht_init();
-  if (ret != 0) {
-    fprintf (stderr, "Cannot init sensor\n");
-    exit (1);
-  }
   ret = base_init(&db_sensor, dbpath);
   if (ret != 0) {
     fprintf (stderr, "Cannot open base '%s'\n", dbpath);

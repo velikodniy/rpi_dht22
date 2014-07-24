@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 int dht_init();
-void dht_get(double* temp, double* hum);
-int dht_read(uint8_t pin, double* temp, double* hum);
+void dht_get(float* temp, float* hum);
+int dht_read(uint8_t pin, float* temp, float* hum);
 
 #endif
