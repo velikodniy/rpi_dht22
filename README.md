@@ -23,8 +23,31 @@ Connecting
 | black  | P6 (GND)   |
 | white  | P7 (GPIO4) |
 
-API
----
+Usage
+-----
+
+    ./dht_daemon [-p port] [-d dbpath] [-t interval] [-s]
+
+Options:
+
+-s	Run only HTTP server
+
+-p  Port
+
+-d  Path to database file
+
+-t  Time interval to update info (seconds)
+
+Defaults:
+
+| Option    | Value      |
+|:----------|:-----------|
+| port      | 8080       |
+| dbpath    | 'data.db'  |
+| interval  | 300        |
+
+HTTP API
+--------
 
 - /last?count=*last_records_num*
 - /between?from=*from_date*&to=*to_date*
