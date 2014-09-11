@@ -4,14 +4,13 @@ RPi-DHT22
 Dependencies
 ------------
 
-- libbcm2835 (you can get it by running `make getlibs`)
 - libsqlite3-dev
 - libmicrohttpd-dev
 
 Compile
 -------
-
-    make getlibs
+Simple type:
+    
     make
  
 Connecting
