@@ -10,9 +10,12 @@ CFLAGS += -I$(LIBDIR)
 LDFLAGS += -L$(LIBDIR)
 LDLIBS += -lsqlite3 -lmicrohttpd
 
-.PHONY: all clean
+.PHONY: all clean debug
 
 all: $(NAME)
+
+debug: CFLAGS += -DDEBUG -g
+debug: $(NAME)
 
 $(NAME): $(OBJECTS)
 
